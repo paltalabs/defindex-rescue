@@ -1,5 +1,5 @@
 {
-  "name": "dftokens-transfer-campaigns",
+  "name": "rescue-defindex",
   "version": "1.0.0",
   "main": "dist/main.js",
   "author": "coderipper",
@@ -8,7 +8,6 @@
     "rescue": "tsx src/rescue.ts"
   },
   "dependencies": {
-    "@defindex/sdk": "0.3.0-alpha.1",
     "@stellar/stellar-sdk": "^14.4.3",
     "dotenv": "^16.6.1"
   },

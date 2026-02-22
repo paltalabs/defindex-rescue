@@ -1,41 +1,58 @@
-import DefindexSDK, { RescueFromVaultParams, SupportedNetworks } from "@defindex/sdk";
-import { Keypair, Networks, Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
+import { Address, Contract, Keypair, Networks, rpc, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 
 config();
 
 const SIGNER_SECRET = process.env.SIGNER_SECRET as string
-const VAULT_ADDRESS = process.env.SIGNER_SECRET as string
+const VAULT_ADDRESS = process.env.VAULT_ADDRESS as string
 
 async function main() {
   const callerKeypair = Keypair.fromSecret(SIGNER_SECRET);
 
-  const defindexSdk = new DefindexSDK({
-    apiKey: process.env.DEFINDEX_API_KEY as string,
-    baseUrl: process.env.DEFINDEX_API_URL as string,
-  });
+  const vaultContract = new Contract(VAULT_ADDRESS);
 
-  const rescueData: RescueFromVaultParams = {
-    strategy_address: "CCSRX5E4337QMCMC3KO3RDFYI57T5NZV5XB3W3TWE4USCASKGL5URKJL",
-    caller: callerKeypair.publicKey()
-  }
+  const rescueParams: xdr.ScVal[] = [
+    new Address("CCSRX5E4337QMCMC3KO3RDFYI57T5NZV5XB3W3TWE4USCASKGL5URKJL").toScVal(),
+    new Address(callerKeypair.publicKey()).toScVal(),
+  ]
 
-  const rescueResponse = await defindexSdk.emergencyRescue(
-    VAULT_ADDRESS,
-    rescueData,
-    SupportedNetworks.MAINNET
-  );
-  console.log("🚀 | main | rescueResponse:", JSON.stringify(rescueResponse, null, 2));
+  const rescueOperation = vaultContract.call("rescue", ...rescueParams)
 
-  const transaction = TransactionBuilder.fromXDR(rescueResponse.xdr as string, Networks.PUBLIC) as Transaction;
+  const server = new rpc.Server("https://rpc.lightsail.network")
 
-  transaction.sign(callerKeypair);
+  const source = await server.getAccount(callerKeypair.publicKey())
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  const txBuilder = new TransactionBuilder(source, {
+    fee: "3000",
+    networkPassphrase: Networks.PUBLIC
+  }).addOperation(rescueOperation).setTimeout(300).build()
+
+  const sim = await server.simulateTransaction(txBuilder)
+
+  const preppedTx = rpc.assembleTransaction(txBuilder, sim).build()
+
+  preppedTx.sign(callerKeypair)
+  
 
   try {
-    const response = await defindexSdk.sendTransaction(transaction.toXDR(), SupportedNetworks.TESTNET)
-    console.log("🚀 | main | response:", response)
+    const response = await server.sendTransaction(preppedTx)
+    const txHash = response.hash
+    const initialStatus = response.status
+
+    let txResponse: any
+    while (initialStatus === 'PENDING') {
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      console.log(`waiting for tx ${txHash}`)
+      txResponse = await server.getTransaction(txHash)
+      console.log(`🚀 | Transaction ${txHash} | txResponse:`, txResponse)
+  
+      if (txResponse.status === 'SUCCESS') {
+        console.log(`Transaction ${txHash} successful`)
+        break
+      }
+    }
+  
+    console.log(txResponse)
   } catch (error) {
     console.log("🚀 Error sending TX:", error)
   }

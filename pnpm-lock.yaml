@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@defindex/sdk':
-        specifier: 0.3.0-alpha.1
-        version: 0.3.0-alpha.1
       '@stellar/stellar-sdk':
         specifier: ^14.4.3
         version: 14.5.0
@@ -29,10 +26,6 @@ importers:
         version: 5.9.3
 
 packages:
-
-  '@defindex/sdk@0.3.0-alpha.1':
-    resolution: {integrity: sha512-1W+9f1oOvSwPF88e7yfAWOWcdmc2LSOGYxT4WiuD6PrAfgjeyxszJa/ar9UUiz7LztMXaS9hDb7H9AIM+RWslQ==}
-    engines: {node: '>=16.0.0'}
 
   '@esbuild/aix-ppc64@0.27.3':
     resolution: {integrity: sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg==}
@@ -445,12 +438,6 @@ packages:
     engines: {node: '>= 0.4'}
 
 snapshots:
-
-  '@defindex/sdk@0.3.0-alpha.1':
-    dependencies:
-      axios: 1.13.5
-    transitivePeerDependencies:
-      - debug
 
   '@esbuild/aix-ppc64@0.27.3':
     optional: true
