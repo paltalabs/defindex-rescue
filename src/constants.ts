@@ -7,7 +7,8 @@ export const RPC_URL = "https://rpc.lightsail.network";
 // Tokens
 // ============================================================
 export const USDC_TOKEN = "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75";
-export const XLM_TOKEN = "native";
+export const XLM_TOKEN = "native";  
+export const EURC_TOKEN = "CCKTLDG6I2MMJCKFWXXBXMA42LJ3XN2IOW6M7TK6EWNPJTS736ETFF2N";
 
 // ============================================================
 // DeFindex Factory
