@@ -10,6 +10,11 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
+import {
+  RPC_URL,
+  USDC_TOKEN,
+  USDC_BLEND_YIELDBLOX_STRATEGY,
+} from "./constants.js";
 
 config();
 
@@ -19,16 +24,13 @@ config();
 
 const SIGNER_SECRET = process.env.SIGNER_SECRET as string;
 const VAULT_ADDRESS = process.env.VAULT_ADDRESS as string;
-const RPC_URL = "https://rpc.lightsail.network";
-
 
 // Map each asset address to the strategy where idle funds should be invested.
 // Key: asset token address, Value: strategy contract address
 const ASSET_TO_STRATEGY: Record<string, string> = {
-  // USDC -> usdc_blend_autocompound_yieldblox_strategy
-  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75": "CCSRX5E4337QMCMC3KO3RDFYI57T5NZV5XB3W3TWE4USCASKGL5URKJL",
+  [USDC_TOKEN]: USDC_BLEND_YIELDBLOX_STRATEGY,
   // Add more asset -> strategy mappings as needed:
-  // "ASSET_ADDRESS": "STRATEGY_ADDRESS",
+  // [EURC_TOKEN]: EURC_BLEND_YIELDBLOX_STRATEGY,
 };
 
 // ============================================================
