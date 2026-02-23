@@ -1,5 +1,6 @@
 import { Address, Contract, Keypair, Networks, rpc, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
+import { RPC_URL, USDC_BLEND_YIELDBLOX_STRATEGY } from "./constants.js";
 
 config();
 
@@ -12,13 +13,13 @@ async function main() {
   const vaultContract = new Contract(VAULT_ADDRESS);
 
   const rescueParams: xdr.ScVal[] = [
-    new Address("CCSRX5E4337QMCMC3KO3RDFYI57T5NZV5XB3W3TWE4USCASKGL5URKJL").toScVal(),
+    new Address(USDC_BLEND_YIELDBLOX_STRATEGY).toScVal(),
     new Address(callerKeypair.publicKey()).toScVal(),
   ]
 
   const rescueOperation = vaultContract.call("rescue", ...rescueParams)
 
-  const server = new rpc.Server("https://rpc.lightsail.network")
+  const server = new rpc.Server(RPC_URL)
 
   const source = await server.getAccount(callerKeypair.publicKey())
 
