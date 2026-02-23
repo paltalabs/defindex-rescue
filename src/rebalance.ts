@@ -28,8 +28,12 @@ const isTestnet =
 
 config({ path: isTestnet ? ".env.test" : ".env" });
 
-const SIGNER_SECRET = process.env.SIGNER_SECRET as string;
-const VAULT_ADDRESS = process.env.VAULT_ADDRESS as string;
+if (!process.env.SIGNER_SECRET || !process.env.VAULT_ADDRESS) {
+  throw new Error("Missing SIGNER_SECRET or VAULT_ADDRESS in environment");
+}
+
+const SIGNER_SECRET: string = process.env.SIGNER_SECRET;
+const VAULT_ADDRESS: string = process.env.VAULT_ADDRESS;
 
 const NETWORK_PASSPHRASE = isTestnet ? Networks.TESTNET : Networks.PUBLIC;
 const SERVER_URL = isTestnet ? TESTNET_RPC_URL : RPC_URL;
@@ -187,8 +191,10 @@ async function main() {
     const txHash = response.hash;
     console.log(`Transaction sent: ${txHash} | Status: ${response.status}`);
 
-    let txResponse: any;
-    while (response.status === "PENDING") {
+    let txResponse: rpc.Api.GetTransactionResponse = { status: "NOT_FOUND" } as any;
+    const MAX_RETRIES = 30; // 60 seconds max
+    let retries = 0;
+    while (retries < MAX_RETRIES) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log(`Waiting for tx ${txHash}...`);
       txResponse = await server.getTransaction(txHash);
@@ -202,6 +208,10 @@ async function main() {
         console.error(txResponse);
         break;
       }
+      retries++;
+    }
+    if (retries >= MAX_RETRIES) {
+      throw new Error(`Transaction ${txHash} timed out after ${MAX_RETRIES * 2}s`);
     }
   } catch (error) {
     console.error("Error sending rebalance TX:", error);
