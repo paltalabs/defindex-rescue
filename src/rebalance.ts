@@ -14,24 +14,34 @@ import {
   RPC_URL,
   USDC_TOKEN,
   USDC_BLEND_YIELDBLOX_STRATEGY,
+  TESTNET_RPC_URL,
+  TESTNET_XLM_SAC,
+  TESTNET_XLM_BLEND_STRATEGY,
 } from "./constants.js";
 
-config();
+// ============================================================
+// CONFIGURATION
+// ============================================================
 
-// ============================================================
-// CONFIGURATION - Edit these values before running
-// ============================================================
+const isTestnet =
+  process.argv.includes("--testnet") || process.env.NETWORK === "testnet";
+
+config({ path: isTestnet ? ".env.test" : ".env" });
 
 const SIGNER_SECRET = process.env.SIGNER_SECRET as string;
 const VAULT_ADDRESS = process.env.VAULT_ADDRESS as string;
 
+const NETWORK_PASSPHRASE = isTestnet ? Networks.TESTNET : Networks.PUBLIC;
+const SERVER_URL = isTestnet ? TESTNET_RPC_URL : RPC_URL;
+
 // Map each asset address to the strategy where idle funds should be invested.
-// Key: asset token address, Value: strategy contract address
-const ASSET_TO_STRATEGY: Record<string, string> = {
-  [USDC_TOKEN]: USDC_BLEND_YIELDBLOX_STRATEGY,
-  // Add more asset -> strategy mappings as needed:
-  // [EURC_TOKEN]: EURC_BLEND_YIELDBLOX_STRATEGY,
-};
+const ASSET_TO_STRATEGY: Record<string, string> = isTestnet
+  ? { [TESTNET_XLM_SAC]: TESTNET_XLM_BLEND_STRATEGY }
+  : {
+      [USDC_TOKEN]: USDC_BLEND_YIELDBLOX_STRATEGY,
+      // Add more asset -> strategy mappings as needed:
+      // [EURC_TOKEN]: EURC_BLEND_YIELDBLOX_STRATEGY,
+    };
 
 // ============================================================
 
@@ -65,7 +75,9 @@ function mapInstructionsToScVal(instructions: Instruction[]): xdr.ScVal {
 }
 
 async function main() {
-  const server = new rpc.Server(RPC_URL);
+  if (isTestnet) console.log("Running in TESTNET mode\n");
+
+  const server = new rpc.Server(SERVER_URL);
   const callerKeypair = Keypair.fromSecret(SIGNER_SECRET);
   const vaultContract = new Contract(VAULT_ADDRESS);
 
@@ -77,7 +89,7 @@ async function main() {
 
   const fetchTx = new TransactionBuilder(source, {
     fee: "3000",
-    networkPassphrase: Networks.PUBLIC,
+    networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(fetchOp)
     .setTimeout(300)
@@ -154,7 +166,7 @@ async function main() {
 
   const rebalanceTx = new TransactionBuilder(freshSource, {
     fee: "3000",
-    networkPassphrase: Networks.PUBLIC,
+    networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(rebalanceOp)
     .setTimeout(300)
