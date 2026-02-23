@@ -5,7 +5,8 @@
   "author": "coderipper",
   "license": "MIT",
   "scripts": {
-    "rescue": "tsx src/rescue.ts"
+    "rescue": "tsx src/rescue.ts",
+    "rebalance": "tsx src/rebalance.ts"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^14.4.3",
