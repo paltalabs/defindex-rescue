@@ -30,7 +30,7 @@ cp .env.example .env
 
 ## Rescue
 
-Emergency rescue of funds from a vault strategy back to the caller.
+Emergency rescue of funds from a strategy back to the vault. It will protect users funds and will pause the strategy. Funds will stay as IDLE FUNDS.
 
 ```bash
 pnpm rescue
@@ -42,7 +42,7 @@ The script will:
 2. Sign the transaction with the provided signer key
 3. Submit the signed transaction to the Stellar network
 
-The strategy address to rescue from is hardcoded in `src/rescue.ts`. Update it to target a different strategy.
+The strategy address to rescue from is hardcoded in `src/rescue.ts` (Currently `USDC_BLEND_YIELDBLOX_STRATEGY`). Update it to target a different strategy.
 
 ## Rebalance
 
@@ -59,7 +59,7 @@ The script will:
 3. Build `Invest` instructions mapping each idle asset to its configured strategy
 4. Execute a `rebalance` transaction on the vault
 
-The asset-to-strategy mapping is configured in `src/rebalance.ts`. By default it maps USDC to the Blend YieldBlox strategy on mainnet.
+The asset-to-strategy mapping is configured in `src/rebalance.ts`. By default it maps USDC to the `USDC_BLEND_FIXED_STRATEGY` strategy on mainnet.
 
 ### Testnet mode
 
