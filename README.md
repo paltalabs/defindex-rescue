@@ -27,8 +27,6 @@ cp .env.example .env
 |---|---|
 | `SIGNER_SECRET` | Stellar secret key of the account authorized to perform the rescue |
 | `VAULT_ADDRESS` | Contract address of the DeFindex vault to rescue funds from |
-| `DEFINDEX_API_KEY` | API key for the DeFindex service |
-| `DEFINDEX_API_URL` | Base URL of the DeFindex API |
 
 ## Rescue
 
