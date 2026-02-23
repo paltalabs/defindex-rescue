@@ -17,6 +17,7 @@ import {
   TESTNET_RPC_URL,
   TESTNET_XLM_SAC,
   TESTNET_XLM_BLEND_STRATEGY,
+  USDC_BLEND_FIXED_STRATEGY,
 } from "./constants.js";
 
 // ============================================================
@@ -42,7 +43,7 @@ const SERVER_URL = isTestnet ? TESTNET_RPC_URL : RPC_URL;
 const ASSET_TO_STRATEGY: Record<string, string> = isTestnet
   ? { [TESTNET_XLM_SAC]: TESTNET_XLM_BLEND_STRATEGY }
   : {
-      [USDC_TOKEN]: USDC_BLEND_YIELDBLOX_STRATEGY,
+      [USDC_TOKEN]: USDC_BLEND_FIXED_STRATEGY,
       // Add more asset -> strategy mappings as needed:
       // [EURC_TOKEN]: EURC_BLEND_YIELDBLOX_STRATEGY,
     };
