@@ -29,7 +29,7 @@ cp .env.example .env
 | `SIGNER_PUBLIC_KEY` | One of the two | Stellar public key of the authorized account. Builds and simulates the transaction, then prints the XDR for signing with an external tool. |
 | `VAULT_ADDRESS` | Yes | Contract address of the DeFindex vault. |
 
-> **Tip — XDR export mode:** If you don't have access to the private key at runtime (e.g. hardware wallet, multisig), set only `SIGNER_PUBLIC_KEY`. The script will build and simulate the transaction, then save the fully-assembled XDR to a timestamped file (e.g. `rescue_unsigned_1234567890.xdr`). These files are gitignored. Open the file, copy the contents, and paste them into any Stellar signer (e.g. [Stellar Laboratory](https://laboratory.stellar.org), Albedo, Freighter, or your hardware wallet tool).
+> **Tip — XDR export mode:** If you don't have access to the private key at runtime (e.g. hardware wallet, multisig), set only `SIGNER_PUBLIC_KEY`. The script will build and simulate the transaction, then save the fully-assembled XDR to a timestamped file (e.g. `rescue_unsigned_2026-02-26_14-30-00.xdr`). These files are gitignored. Open the file, copy the contents, and paste them into any Stellar signer (e.g. [Stellar Laboratory](https://laboratory.stellar.org), Albedo, Freighter, or your hardware wallet tool).
 
 ## Rescue
 

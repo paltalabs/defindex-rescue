@@ -41,10 +41,13 @@ async function main() {
 
   if (!callerKeypair) {
     const xdrString = preppedTx.toXDR()
-    const filename = `rescue_unsigned_${Date.now()}.xdr`
+    const now = new Date()
+    const ts = now.toISOString().replace(/T/, "_").replace(/:/g, "-").replace(/\..+/, "")
+    const filename = `rescue_unsigned_${ts}.xdr`
     writeFileSync(filename, xdrString)
     console.log(`\nNo SIGNER_SECRET provided. Unsigned XDR saved to: ${filename}`)
-    console.log("Paste its contents into Stellar Laboratory or any other signer tool to sign and submit.")
+    console.log("Paste it into Stellar Laboratory or any other signer tool to sign and submit.\n")
+    console.log(xdrString)
     return
   }
 

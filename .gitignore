@@ -4,3 +4,4 @@
 .env.seevcash
 .env.org
 .env.test
+*.xdr
