@@ -23,10 +23,13 @@ cp .env.example .env
 
 3. Fill in the environment variables:
 
-| Variable | Description |
-|---|---|
-| `SIGNER_SECRET` | Stellar secret key of the account authorized to perform the rescue |
-| `VAULT_ADDRESS` | Contract address of the DeFindex vault to rescue funds from |
+| Variable | Required | Description |
+|---|---|---|
+| `SIGNER_SECRET` | One of the two | Stellar secret key of the authorized account. Signs and submits the transaction automatically. |
+| `SIGNER_PUBLIC_KEY` | One of the two | Stellar public key of the authorized account. Builds and simulates the transaction, then prints the XDR for signing with an external tool. |
+| `VAULT_ADDRESS` | Yes | Contract address of the DeFindex vault. |
+
+> **Tip — XDR export mode:** If you don't have access to the private key at runtime (e.g. hardware wallet, multisig), set only `SIGNER_PUBLIC_KEY`. The script will build and simulate the transaction, then print the fully-assembled XDR to stdout. Copy it and paste it into any Stellar signer (e.g. [Stellar Laboratory](https://laboratory.stellar.org), Albedo, Freighter, or your hardware wallet tool).
 
 ## Rescue
 
@@ -39,8 +42,9 @@ pnpm rescue
 The script will:
 
 1. Build an emergency rescue transaction for the specified vault and strategy
-2. Sign the transaction with the provided signer key
-3. Submit the signed transaction to the Stellar network
+2. Simulate the transaction to assemble auth entries
+3. If `SIGNER_SECRET` is set: sign and submit the transaction
+4. If only `SIGNER_PUBLIC_KEY` is set: print the assembled XDR to stdout
 
 The strategy address to rescue from is hardcoded in `src/rescue.ts` (Currently `USDC_BLEND_YIELDBLOX_STRATEGY`). Update it to target a different strategy.
 
@@ -57,7 +61,8 @@ The script will:
 1. Fetch total managed funds from the vault (via simulation)
 2. Identify assets with idle (uninvested) balances
 3. Build `Invest` instructions mapping each idle asset to its configured strategy
-4. Execute a `rebalance` transaction on the vault
+4. If `SIGNER_SECRET` is set: sign and submit the `rebalance` transaction
+5. If only `SIGNER_PUBLIC_KEY` is set: print the assembled XDR to stdout
 
 The asset-to-strategy mapping is configured in `src/rebalance.ts`. By default it maps USDC to the `USDC_BLEND_FIXED_STRATEGY` strategy on mainnet.
 

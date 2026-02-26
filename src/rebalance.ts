@@ -29,11 +29,15 @@ const isTestnet =
 
 config({ path: isTestnet ? ".env.test" : ".env" });
 
-if (!process.env.SIGNER_SECRET || !process.env.VAULT_ADDRESS) {
-  throw new Error("Missing SIGNER_SECRET or VAULT_ADDRESS in environment");
+if (!process.env.VAULT_ADDRESS) {
+  throw new Error("Missing VAULT_ADDRESS in environment");
+}
+if (!process.env.SIGNER_SECRET && !process.env.SIGNER_PUBLIC_KEY) {
+  throw new Error("Must provide either SIGNER_SECRET or SIGNER_PUBLIC_KEY in environment");
 }
 
-const SIGNER_SECRET: string = process.env.SIGNER_SECRET;
+const SIGNER_SECRET: string | undefined = process.env.SIGNER_SECRET;
+const SIGNER_PUBLIC_KEY: string | undefined = process.env.SIGNER_PUBLIC_KEY;
 const VAULT_ADDRESS: string = process.env.VAULT_ADDRESS;
 
 const NETWORK_PASSPHRASE = isTestnet ? Networks.TESTNET : Networks.PUBLIC;
@@ -83,14 +87,15 @@ async function main() {
   if (isTestnet) console.log("Running in TESTNET mode\n");
 
   const server = new rpc.Server(SERVER_URL);
-  const callerKeypair = Keypair.fromSecret(SIGNER_SECRET);
+  const callerKeypair = SIGNER_SECRET ? Keypair.fromSecret(SIGNER_SECRET) : null;
+  const publicKey = callerKeypair ? callerKeypair.publicKey() : SIGNER_PUBLIC_KEY as string;
   const vaultContract = new Contract(VAULT_ADDRESS);
 
   // ---- Step 1: Fetch total managed funds via simulation ----
   console.log("Fetching total managed funds...");
 
   const fetchOp = vaultContract.call("fetch_total_managed_funds");
-  const source = await server.getAccount(callerKeypair.publicKey());
+  const source = await server.getAccount(publicKey);
 
   const fetchTx = new TransactionBuilder(source, {
     fee: "3000",
@@ -160,14 +165,14 @@ async function main() {
   console.log("\nSending rebalance transaction...");
 
   const rebalanceParams: xdr.ScVal[] = [
-    new Address(callerKeypair.publicKey()).toScVal(),
+    new Address(publicKey).toScVal(),
     mapInstructionsToScVal(investInstructions),
   ];
 
   const rebalanceOp = vaultContract.call("rebalance", ...rebalanceParams);
 
   // Refresh source account sequence number
-  const freshSource = await server.getAccount(callerKeypair.publicKey());
+  const freshSource = await server.getAccount(publicKey);
 
   const rebalanceTx = new TransactionBuilder(freshSource, {
     fee: "3000",
@@ -185,6 +190,13 @@ async function main() {
   }
 
   const preppedTx = rpc.assembleTransaction(rebalanceTx, rebalanceSim).build();
+
+  if (!callerKeypair) {
+    console.log("\nNo SIGNER_SECRET provided. Sign and submit the following XDR:\n");
+    console.log(preppedTx.toXDR());
+    return;
+  }
+
   preppedTx.sign(callerKeypair);
 
   try {
