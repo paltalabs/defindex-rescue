@@ -33,7 +33,7 @@ async function main() {
   const txBuilder = new TransactionBuilder(source, {
     fee: "3000",
     networkPassphrase: Networks.PUBLIC
-  }).addOperation(rescueOperation).setTimeout(300).build()
+  }).addOperation(rescueOperation).setTimeout(600).build()
 
   const sim = await server.simulateTransaction(txBuilder)
 

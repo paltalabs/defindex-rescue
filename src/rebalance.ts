@@ -103,7 +103,7 @@ async function main() {
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(fetchOp)
-    .setTimeout(300)
+    .setTimeout(600)
     .build();
 
   const sim = await server.simulateTransaction(fetchTx);
@@ -180,7 +180,7 @@ async function main() {
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(rebalanceOp)
-    .setTimeout(300)
+    .setTimeout(600)
     .build();
 
   const rebalanceSim = await server.simulateTransaction(rebalanceTx);
