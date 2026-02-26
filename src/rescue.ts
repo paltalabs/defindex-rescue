@@ -1,3 +1,4 @@
+import { writeFileSync } from "fs";
 import { Address, Contract, Keypair, Networks, rpc, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import { RPC_URL, USDC_BLEND_YIELDBLOX_STRATEGY } from "./constants.js";
@@ -39,8 +40,11 @@ async function main() {
   const preppedTx = rpc.assembleTransaction(txBuilder, sim).build()
 
   if (!callerKeypair) {
-    console.log("\nNo SIGNER_SECRET provided. Sign and submit the following XDR:\n")
-    console.log(preppedTx.toXDR())
+    const xdrString = preppedTx.toXDR()
+    const filename = `rescue_unsigned_${Date.now()}.xdr`
+    writeFileSync(filename, xdrString)
+    console.log(`\nNo SIGNER_SECRET provided. Unsigned XDR saved to: ${filename}`)
+    console.log("Paste its contents into Stellar Laboratory or any other signer tool to sign and submit.")
     return
   }
 
